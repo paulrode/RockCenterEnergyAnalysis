@@ -44,8 +44,11 @@ UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(B
 gather(UtilityData, key = "Item", value = "Value", -Building )
 
 
-UtilityData %>% select()
-ggplot(UtilityData, aes())
+ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
+  gather(key = "Item", value = "Value", -Building) %>% 
+  ggplot(aes(x = "Item", y = "Value", group="Building")) + 
+    geom_bar(stat = "identity")
+  
 
 
 
