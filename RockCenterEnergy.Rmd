@@ -1,0 +1,55 @@
+---
+title: "Rockefeller Center Energy Analysis"
+ 
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+
+my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable")
+
+invisible( lapply(my_packages, require, character.only = TRUE))
+
+#Choose one working site: 
+place <- "Home" 
+# place <- "work"
+
+#Set proper working Dir 
+if (place == "Home"){setwd("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis")} else {setwd("C:/Users/prode/Documents/R/RockCenterEnergyAnalysis")}
+
+# Check for data directory and if one is not present then make it
+
+if (!file.exists("data")) { dir.create("data")}
+
+
+# Set up the "not in" operator for later use.
+
+`%!in%`<- Negate(`%in%`)
+
+rm(place, my_packages )
+
+options(dplyr.summarise.inform = FALSE)
+
+# Read in data
+
+SteamData <- read_excel("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:H11" , col_names = TRUE, na = "NA", col_types = NULL )
+
+ElectricData <- read_excel("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL )
+
+BuildingGSF <- select(SteamData, Building, 'Gross Floor Area')
+
+UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, by="Building")
+gather(UtilityData, key = "Item", value = "Value", -Building )
+
+
+UtilityData %>% select()
+ggplot(UtilityData, aes())
+
+
+
+```
+
+
+
