@@ -45,9 +45,16 @@ gather(UtilityData, key = "Item", value = "Value", -Building )
 
 
 ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
-  gather(key = "Item", value = "Value", -Building) %>% 
-  ggplot(aes(x = "Item", y = "Value", group="Building")) + 
-    geom_bar(stat = "identity")
+  gather(key = "Item", value = "Value", -Building) -> elect_long 
+
+elect_long %>%
+  ggplot(aes(x = Item, y = Value)) +
+  geom_bar(stat = identity, group = Building)
+
+EnergyAllocation %>% 
+  ggplot(aes(x = Type, y = Value, fill = Fuel)) +
+  geom_col(position = "stack")+
+  labs(title = "Energy Use by Building Type")
   
 
 
