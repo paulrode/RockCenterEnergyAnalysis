@@ -8,6 +8,7 @@ output:
 
 ```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
+
 my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable")
 
 invisible( lapply(my_packages, require, character.only = TRUE))
@@ -23,39 +24,40 @@ if (place == "Home"){setwd("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis"
 
 if (!file.exists("data")) { dir.create("data")}
 
-
-# Set up the "not in" operator for later use.
-
-`%!in%`<- Negate(`%in%`)
-
+# Clean up environment
 rm(place, my_packages )
 
 options(dplyr.summarise.inform = FALSE)
 
 # Read in data
 
-SteamData <- read_excel("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:H11" , col_names = TRUE, na = "NA", col_types = NULL )
+SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:G11" , col_names = TRUE, na = "NA", col_types = NULL )
 
-ElectricData <- read_excel("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL )
+ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL )
 
-BuildingGSF <- select(SteamData, Building, 'Gross Floor Area')
+BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B28:C39" , col_names = TRUE, na = "NA", col_types = NULL )
 
 UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, by="Building")
+UtilityData[is.na(UtilityData)] <- 0
 gather(UtilityData, key = "Item", value = "Value", -Building )
+
+
 
 
 ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) -> elect_long 
 
 elect_long %>%
-  ggplot(aes(x = Item, y = Value)) +
-  geom_bar(stat = identity, group = Building)
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  geom_bar(stat = "identity", position = "dodge")
 
-EnergyAllocation %>% 
-  ggplot(aes(x = Type, y = Value, fill = Fuel)) +
-  geom_col(position = "stack")+
-  labs(title = "Energy Use by Building Type")
-  
+apply(UtilityData[2:4], 2, function(row) row / UtilityData$`Gross Floor Area`) -> UtilityData[2:4]
+UtilityData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
+  gather(key = "Item", value = "Value", -Building) %>% 
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  geom_bar(stat = "identity", position = "dodge")
+
+
 
 
 
