@@ -45,9 +45,7 @@ gather(UtilityData, key = "Item", value = "Value", -Building )
 
 
 ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
-  gather(key = "Item", value = "Value", -Building) -> elect_long 
-
-elect_long %>%
+  gather(key = "Item", value = "Value", -Building) %>%
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
 
@@ -57,8 +55,19 @@ UtilityData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
 
+apply(UtilityData[2:4], 2, function(row) row / UtilityData$`Gross Floor Area`) -> UtilityData[2:4]
+apply(UtilityData[2:4], 2, function(row) row / UtilityData$`2019 kwh`) -> UtilityData[2:4]
+UtilityData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
+  gather(key = "Item", value = "Value", -Building) %>% 
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  geom_bar(stat = "identity", position = "dodge")
 
-
+apply(UtilityData[2:4], 2, function(row) row / UtilityData$`Gross Floor Area`) -> UtilityData[2:4]
+apply(UtilityData[2:4], 2, function(row) 1 - (row / UtilityData$`2019 kwh`)) -> UtilityData[2:4]
+UtilityData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
+  gather(key = "Item", value = "Value", -Building) %>% 
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  geom_bar(stat = "identity", position = "dodge")
 
 
 ```
