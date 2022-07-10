@@ -10,8 +10,7 @@ output:
 
 
 my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable")
-
-invisible( lapply(my_packages, require, character.only = TRUE))
+# invisible( lapply(my_packages, require, character.only = TRUE))
 
 #Choose one working site: 
 place <- "Home" 
@@ -31,17 +30,23 @@ options(dplyr.summarise.inform = FALSE)
 
 # Read in data
 
-SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:G11" , col_names = TRUE, na = "NA", col_types = NULL )
+SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:G11" , col_names = TRUE, na = "NA", col_types = NULL ) %>%  select(-5,-6)
 
-ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL )
+ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL ) %>% select(-5,-6)
 
-BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B28:C39" , col_names = TRUE, na = "NA", col_types = NULL )
+ElectricData %>% filter(Building == '1 Rock' | Building == '600 5th') %>% 
+  select( -Building) %>% 
+  summarise_each(funs(sum)) %>% 
+  mutate(Building = "1 Rock and 600 5th") %>% 
+  select(4,1,2,3) %>% rbind(ElectricData) %>% 
+  filter(Building != '1 Rock' & Building != '600 5th') -> ElectricData
+rm(ElectricData1)
+
+BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B28:C39" , col_names = TRUE, na = "NA", col_types = NULL ) %>% 
+  filter(Building != '1 Rock' & Building != '600 5th')
 
 UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, by="Building")
 UtilityData[is.na(UtilityData)] <- 0
-gather(UtilityData, key = "Item", value = "Value", -Building )
-
-
 
 
 ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
@@ -49,29 +54,48 @@ ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
 
-
 UtilityData1 <- UtilityData
-apply(UtilityData[2:4], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:4]
+apply(UtilityData[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
 UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
+rm(UtilityData1)
 
 UtilityData1 <- UtilityData
-apply(UtilityData1[2:4], 2, function(row) row / UtilityData$`Gross Floor Area`) -> UtilityData1[2:4]
+apply(UtilityData[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
 apply(UtilityData1[2:4], 2, function(row) row / UtilityData1$`2019 kwh`) -> UtilityData1[2:4]
 UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
+rm(UtilityData1)
+
+
+
+SteamData %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
+  gather(key = "Item", value = "Value", -Building) %>%
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  geom_bar(stat = "identity", position = "dodge")
 
 UtilityData1 <- UtilityData
-apply(UtilityData1[2:4], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:4]
-apply(UtilityData1[2:4], 2, function(row) 1 - (row / UtilityData1$`2019 kwh`)) -> UtilityData1[2:4]
-UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
+apply(UtilityData[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
+UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
+rm(UtilityData1)
+
+UtilityData1 <- UtilityData
+apply(UtilityData[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
+apply(UtilityData1[5:7], 2, function(row) row / UtilityData1$`2019 mlbs`) -> UtilityData1[5:7]
+UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
+  gather(key = "Item", value = "Value", -Building) %>% 
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  geom_bar(stat = "identity", position = "dodge")
+rm(UtilityData1)
+
+
 
 
 ```
