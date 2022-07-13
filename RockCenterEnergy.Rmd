@@ -48,22 +48,40 @@ BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "S
 UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, by="Building")
 UtilityData[is.na(UtilityData)] <- 0
 
+
+
+
+
+
 #Campus Energy for each year 
 UtilityData1 <- UtilityData 
 apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
 apply(UtilityData1[5:7], 2, function(row) row * 1194) -> UtilityData1[5:7]
-UtilityData1 %>% select(`2019 kwh`, `2020 kwh`, `2021 kwh`, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
-summarise_each(funs(sum)) %>% 
+UtilityData1 %>% select(`2019 kwh`, `2020 kwh`, `2021 kwh`, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`, `Gross Floor Area`) %>%
+summarise_each(funs(sum)) -> UtilityData1
+    TotalFlArea <- UtilityData1$`Gross Floor Area`
+    UtilityData1 %>% 
+      select(-`Gross Floor Area`) %>% 
   gather(key = "Item", value = "Value") -> UtilityData1
   cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) -> UtilityData1 
 UtilityData1 %>% 
   select(-"Item")  -> UtilityData1
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
+apply(UtilityData1[1], 1, function(row) row / TotalFlArea ) -> UtilityData1[1]
+
+
 #Make the plot
 UtilityData1 %>% 
   ggplot(aes(x = Year, y = Value, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack")
 rm(UtilityData1)
+
+
+
+
+
+
+
 
 #Campus  EUI for each year 
 UtilityData1 <- UtilityData 
@@ -71,7 +89,7 @@ apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
 apply(UtilityData1[5:7], 2, function(row) row * 1194) -> UtilityData1[5:7]
 #apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
 UtilityData1 %>% select(`2019 kwh`, `2020 kwh`, `2021 kwh`, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`, `Gross Floor Area`) %>%
-summarise_each(funs(sum))  
+summarise_each(funs(sum))  %>% 
   gather(key = "Item", value = "Value") -> UtilityData1
   cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) -> UtilityData1 
 UtilityData1 %>% 
