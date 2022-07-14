@@ -13,8 +13,8 @@ my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidyte
 invisible( lapply(my_packages, require, character.only = TRUE))
 
 #Choose one working site: 
-place <- "Home" 
-# place <- "work"
+# place <- "Home" 
+place <- "work"
 
 #Set proper working Dir 
 if (place == "Home"){setwd("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis")} else {setwd("C:/Users/prode/Documents/R/RockCenterEnergyAnalysis")}
@@ -69,13 +69,19 @@ UtilityData1 %>%
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
 apply(UtilityData1[1], 1, function(row) row / TotalFlArea ) -> UtilityData1[1]
 
+apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Electric", "Steam")}) -> UtilityData1[3]
 
 #Make the plot
 UtilityData1 %>% 
   ggplot(aes(x = Year, y = Value, fill = Unit)) +
-  geom_bar(stat = "identity", position = "stack")
-rm(UtilityData1)
+  geom_bar(stat = "identity", position = "stack") +
+  labs( title = "Energy Use Density by fuel type for Campus",
+        subtitle = "Units are kBTU's per year per Gross Squar Feet") +
+  xlab("Gross SF") +
+  ylab("kBTU's")
 
+rm(UtilityData1)
+```
 
 
 
@@ -96,8 +102,8 @@ UtilityData1 %>%
   select(-"Item")  -> UtilityData1
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
 #Make the plot
-UtilityData1 %>% 
-  ggplot(aes(x = Year, y = Value, fill = Unit)) +
+ 
+  ggplot(UtilityData1 %>% filter(Year != "Gross"), aes(x = Year, y = Value, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack")
 ############################ WORKING HERE ###############################
 
