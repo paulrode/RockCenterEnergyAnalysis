@@ -9,7 +9,7 @@ output:
 ```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 
-my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable")
+my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable", "scales")
 invisible( lapply(my_packages, require, character.only = TRUE))
 
 #Choose one working site: 
@@ -27,6 +27,8 @@ if (!file.exists("data")) { dir.create("data")}
 rm(place, my_packages )
 
 options(dplyr.summarise.inform = FALSE)
+
+
 
 # Read in data
 
@@ -48,12 +50,7 @@ BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "S
 UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, by="Building")
 UtilityData[is.na(UtilityData)] <- 0
 
-
-
-
-
-
-#Campus Energy for each year 
+#Campus EUI for each year 
 UtilityData1 <- UtilityData 
 apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
 apply(UtilityData1[5:7], 2, function(row) row * 1194) -> UtilityData1[5:7]
@@ -71,17 +68,37 @@ apply(UtilityData1[1], 1, function(row) row / TotalFlArea ) -> UtilityData1[1]
 
 apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Electric", "Steam")}) -> UtilityData1[3]
 
-#Make the plot
 UtilityData1 %>% 
   ggplot(aes(x = Year, y = Value, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack") +
   labs( title = "Energy Use Density by fuel type for Campus",
         subtitle = "Units are kBTU's per year per Gross Squar Feet") +
   xlab("Gross SF") +
-  ylab("kBTU's")
+  ylab("kBTU/SF")
 
-rm(UtilityData1)
+
 ```
+
+
+```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+
+#Calculate % drop for each year compared to 2019 for whole campus
+spread(UtilityData1, Unit, Value) -> UtilityData1
+UtilityData1[1] -> years
+apply(UtilityData1[2:3],2, function(x) x/max(x)) -> UtilityData1
+cbind(years, UtilityData1) -> UtilityData1
+UtilityData1 %>% 
+  filter(Year != "2019") %>% 
+  summarise(Electric = 1- mean(Electric), Steam = 1- mean(Steam) ) -> PercentageDrop
+
+
+```
+
+
+
+
+
+
 
 
 
@@ -108,7 +125,7 @@ UtilityData1 %>%
 ############################ WORKING HERE ###############################
 
 
-#rm(UtilityData1)
+
 ```
 
 
