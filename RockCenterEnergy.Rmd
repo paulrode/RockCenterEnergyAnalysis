@@ -42,7 +42,7 @@ ElectricData %>% filter(Building == '1 Rock' | Building == '600 5th') %>%
   mutate(Building = "1 Rock and 600 5th") %>% 
   select(4,1,2,3) %>% rbind(ElectricData) %>% 
   filter(Building != '1 Rock' & Building != '600 5th') -> ElectricData
-rm(ElectricData1)
+
 
 BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B28:C39" , col_names = TRUE, na = "NA", col_types = NULL ) %>% 
   filter(Building != '1 Rock' & Building != '600 5th')
@@ -61,11 +61,11 @@ summarise_each(funs(sum)) -> UtilityData1
       select(-`Gross Floor Area`) %>% 
   gather(key = "Item", value = "Value") -> UtilityData1
   cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) -> UtilityData1 
+rm(TotalFlArea)
 UtilityData1 %>% 
   select(-"Item")  -> UtilityData1
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
 apply(UtilityData1[1], 1, function(row) row / TotalFlArea ) -> UtilityData1[1]
-
 apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Electric", "Steam")}) -> UtilityData1[3]
 
 UtilityData1 %>% 
@@ -90,7 +90,7 @@ cbind(years, UtilityData1) -> UtilityData1
 UtilityData1 %>% 
   filter(Year != "2019") %>% 
   summarise(Electric = 1- mean(Electric), Steam = 1- mean(Steam) ) -> PercentageDrop
-
+rm(years, UtilityData1)
 
 ```
 
@@ -104,7 +104,7 @@ UtilityData1 %>%
 
 
 
-
+```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #Campus  EUI for each year 
 UtilityData1 <- UtilityData 
@@ -120,12 +120,14 @@ UtilityData1 %>%
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
 #Make the plot
  
-  ggplot(UtilityData1 %>% filter(Year != "Gross"), aes(x = Year, y = Value, fill = Unit)) +
-  geom_bar(stat = "identity", position = "stack")
-############################ WORKING HERE ###############################
+  ggplot(UtilityData1 %>% filter(Year !="Gross"& Unit !="mlbs"), aes(x = Year, y = Value, fill = Unit)) +
+  geom_bar(stat = "identity", fill = "blue")
+  
+  ggplot(UtilityData1 %>% filter(Year !="Gross"& Unit !="kwh"), aes(x = Year, y = Value, fill = Unit)) +
+  geom_bar(stat = "identity", fill = "orange")
 
-
-
+  rm(UtilityData1)
+  
 ```
 
 
@@ -135,7 +137,7 @@ UtilityData1 %>%
 
 
 
-
+```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) %>%
