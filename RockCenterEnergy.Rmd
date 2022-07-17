@@ -80,7 +80,8 @@ UtilityData1 %>%
   labs( title = "Energy Use Density by fuel type for Campus",
         subtitle = "Units are kBTU's per year per Gross Squar Feet") +
   xlab("Gross SF") +
-  ylab("kBTU/SF")
+  ylab("kBTU/SF") +
+  scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
 
 rm(TotalFlArea)
 ```
@@ -96,6 +97,12 @@ cbind(years, UtilityData1) -> UtilityData1
 UtilityData1 %>% 
   filter(Year != "2019") %>% 
   summarise(Electric = 1- mean(Electric), Steam = 1- mean(Steam) ) -> PercentageDrop
+PercentageDrop %>% 
+  kable()
+
+
+
+
 rm(years, UtilityData1)
 
 ```
