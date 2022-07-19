@@ -204,4 +204,12 @@ rm(UtilityData1)
 ```
 
 
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
+
+EPA_data <- read_excel("data/EPA_Annual_Energy_Use_By_Meter.xlsx", range = "A6:BB155" , col_names = FALSE, na = "NA", col_types = NULL )
+
+EPA_data <- read_excel("data/EPA_Annual_Energy_Use_By_Meter.xlsx", skip = 4)
+
+
+```
