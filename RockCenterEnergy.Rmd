@@ -70,7 +70,7 @@ UtilityData1 %>%
   select(-"Item")  -> UtilityData1
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
 apply(UtilityData1[1], 1, function(row) row / TotalFlArea ) -> UtilityData1[1]
-apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Electric", "Steam")}) -> UtilityData1[3]
+apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
 
 
 
@@ -96,7 +96,7 @@ apply(UtilityData1[2:3],2, function(x) x/max(x)) -> UtilityData1
 cbind(years, UtilityData1) -> UtilityData1
 UtilityData1 %>% 
   filter(Year != "2019") %>% 
-  summarise(Electric = 1- mean(Electric), Steam = 1- mean(Steam) ) -> PercentageDrop
+  summarise(Electric = 1- mean('Elec(kBTU)'), Steam = 1- mean('Steam(kBTU)')) -> PercentageDrop
 PercentageDrop %>% 
   kable()
 
@@ -110,50 +110,6 @@ rm(years, UtilityData1)
 
 
 
-
-
-
-
-
-
-
-```{r , echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-
-#Campus  EUI for each year 
-UtilityData1 <- UtilityData 
-apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
-apply(UtilityData1[5:7], 2, function(row) row * 1.194) -> UtilityData1[5:7]
-#apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
-UtilityData1 %>% select(`2019 kwh`, `2020 kwh`, `2021 kwh`, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`, `Gross Floor Area`) ->UtilityData1
-colnames(UtilityData1) <- c("2019 elect kBTU", "2020 elect kBTU","2021 elect kBTU", "2019 steam kBTU", "2020 steam kBTU", "2021 steam kBTU", "Gross Floor Area")
-'Campus Gross Floor Area' <- sum(UtilityData1$`Gross Floor Area`)
-  
-UtilityData1 %>% 
-summarise_each(funs(sum))  -> UtilityData1
-
-
-UtilityData1 %>% 
-  gather(key = "Item", value = "Value") -> UtilityData1
-  cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=3)) -> UtilityData1 
-  
-  
-UtilityData1 %>% 
-  select(-"Item")  -> UtilityData1
-  colnames(UtilityData1)  <-  c("Value", "Year", "Fuel", "Unit") 
-  apply(UtilityData1[,1], 2, function(col) col / 'Campus Gross Floor Area') -> UtilityData1[,1]
-  
-  
-#Make the plot
- 
-  ggplot(UtilityData1 %>% filter(Year !="Gross"& Unit !="mlbs"), aes(x = Year, y = Value, fill = Unit)) +
-  geom_bar(stat = "identity", fill = "blue")
-  
-  ggplot(UtilityData1 %>% filter(Year !="Gross"& Unit !="kwh"), aes(x = Year, y = Value, fill = Unit)) +
-  geom_bar(stat = "identity", fill = "orange")
-
-#  rm(UtilityData1)
-  
-```
 
 
 
