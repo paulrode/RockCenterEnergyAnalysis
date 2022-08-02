@@ -36,6 +36,12 @@ options(dplyr.summarise.inform = FALSE)
 
 # Read in data
 
+#2021 Carbon values
+'ElecCF' <- 0.000288962
+'SteamCF' <- 0.00004493
+
+
+
 SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:G11" , col_names = TRUE, na = "NA", col_types = NULL ) %>%  select(-5,-6)
 
 ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL ) %>% select(-5,-6)
@@ -72,6 +78,10 @@ UtilityData1 %>%
 apply(UtilityData1[1], 1, function(row) row / TotalFlArea ) -> UtilityData1[1]
 apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
 
+#Make a Carbon table in the dataframe UtilityData1
+UtilityData1 %>% 
+  filter(Year == 2021) %>% 
+  mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF, Value * SteamCF)) -> UtilityData1
 
 
 UtilityData1 %>% 
@@ -79,6 +89,16 @@ UtilityData1 %>%
   geom_bar(stat = "identity", position = "stack") +
   labs( title = "Energy Use Density by fuel type for Campus",
         subtitle = "Units are kBTU's per year per Gross Squar Feet") +
+  xlab("Gross SF") +
+  ylab("kBTU/SF") +
+  scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
+
+
+UtilityData1 %>% 
+  ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs( title = "Energy Use Density by fuel type for Campus",
+        subtitle = "Units are Carbon's per year per Gross Squar Feet") +
   xlab("Gross SF") +
   ylab("kBTU/SF") +
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
