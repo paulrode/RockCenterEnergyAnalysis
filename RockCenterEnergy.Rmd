@@ -12,35 +12,30 @@ A look at three years of electric and steam consumption at Rockefeller Center.
 
 ```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
-
+# Load packages 
 my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable", "scales")
 invisible( lapply(my_packages, require, character.only = TRUE))
 
-#Choose one working site: 
-place <- "Home" 
+#Set up environment 
+place <- "Home"  #Where are we working today. 
 # place <- "work"
 
-#Set proper working Dir 
 if (place == "Home"){setwd("C:/Users/paulr/Documents/R/RockCenterEnergyAnalysis")} else {setwd("C:/Users/prode/Documents/R/RockCenterEnergyAnalysis")}
-
-# Check for data directory and if one is not present then make it
 
 if (!file.exists("data")) { dir.create("data")}
 
-# Clean up environment
-rm(place, my_packages )
+rm(place, my_packages ) #Clean up
 
-options(dplyr.summarise.inform = FALSE)
+options(dplyr.summarise.inform = FALSE)  # Suppress textin Knit printout. 
 
 
 
 # Read in data
 
-#2021 Carbon values
-'ElecCF' <- 0.000288962
+'ElecCF' <- 0.000288962  #2021 Carbon values
 'SteamCF' <- 0.00004493
-
-
+'IntensityLimit24' <- 0.00846 #2024 Limit
+'IntensityLimit30' <- 0.00453 #2030 Limit
 
 SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:G11" , col_names = TRUE, na = "NA", col_types = NULL ) %>%  select(-5,-6)
 
@@ -52,7 +47,6 @@ ElectricData %>% filter(Building == '1 Rock' | Building == '600 5th') %>%
   mutate(Building = "1 Rock and 600 5th") %>% 
   select(4,1,2,3) %>% rbind(ElectricData) %>% 
   filter(Building != '1 Rock' & Building != '600 5th') -> ElectricData
-
 
 BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B28:C39" , col_names = TRUE, na = "NA", col_types = NULL ) %>% 
   filter(Building != '1 Rock' & Building != '600 5th')
@@ -104,9 +98,11 @@ UtilityData3 %>%
   labs( title = "Carbon by fuel type",
         subtitle = "Units are Carbon's per year") +
   labs(x = "Year", y = "tCO2e") +
+  geom_hline(aes(yintercept = TotalFlArea * IntensityLimit24)) +
+  geom_hline(aes(yintercept = TotalFlArea * IntensityLimit30)) +
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
 
-rm(TotalFlArea)
+
 ```
 
 
