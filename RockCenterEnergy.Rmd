@@ -98,40 +98,15 @@ UtilityData3 %>%
   labs( title = "Carbon by fuel type",
         subtitle = "Units are Carbon's per year") +
   labs(x = "Year", y = "tCO2e") +
-  geom_hline(aes(yintercept = TotalFlArea * IntensityLimit24)) +
-  geom_hline(aes(yintercept = TotalFlArea * IntensityLimit30)) +
+  #guides(fill = FALSE) +
+  geom_hline(aes(yintercept = TotalFlArea * IntensityLimit24), color = "blue", linetype = "dashed", size = 0.75) +
+  geom_text(aes(x = 2, y = TotalFlArea * IntensityLimit24, label = "2024 Carbon Limit"), hjust = 1, vjust = 1.25 , color = "blue") +
+  geom_hline(aes(yintercept = TotalFlArea * IntensityLimit30), linetype = "dashed", color = "blue", size = 0.5, alpha = 0.5) +
+  geom_text(aes(x = 2, y = TotalFlArea * IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.1) +
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
 
 
 ```
-
-
-```{r Data , echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-
-#Calculate % drop for each year compared to 2019 for whole campus
-spread(UtilityData1, Unit, Value) -> UtilityData1
-UtilityData1[1] -> years
-apply(UtilityData1[2:3],2, function(x) x/max(x)) -> UtilityData1
-cbind(years, UtilityData1) -> UtilityData1
-UtilityData1 %>% 
-  filter(Year != "2019") %>% 
-  summarise(Electric = 1- mean('Elec(kBTU)'), Steam = 1- mean('Steam(kBTU)')) -> PercentageDrop
-PercentageDrop %>% 
-  kable()
-
-
-
-
-rm(years, UtilityData1)
-
-```
-
-
-
-
-
-
-
 
 
 
