@@ -107,26 +107,45 @@ UtilityData3 %>%
 
 
 ```
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+UtilityData1 <- UtilityData 
+apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
+apply(UtilityData1[5:7], 2, function(row) row * 1194) -> UtilityData1[5:7]
+UtilityData1 %>%
+  select(-`Gross Floor Area`) %>% 
+  gather(key = "Item", value = "Value", -Building) %>% 
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs( title = "Carbon by Building",
+        subtitle = "Units are Carbon's per year") +
+  labs(x = "Building", y = "tCO2e")
+  
+  
 
+
+
+```
 
 
 
 
 ```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
+#1 Electric kWh
 ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) %>%
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
 
+#2 Electric kWh per GSF 
 UtilityData1 <- UtilityData
 apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
 UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
-rm(UtilityData1)
 
+#3 percent kWh reductions relative to 2019 
 UtilityData1 <- UtilityData
 apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
 apply(UtilityData1[2:4], 2, function(row) row / UtilityData1$`2019 kwh`) -> UtilityData1[2:4]
@@ -138,19 +157,24 @@ rm(UtilityData1)
 
 
 
+
+
+# 4 Steam mlb 
 SteamData %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>%
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
 
+#5 steam mlb per gsf 
 UtilityData1 <- UtilityData
 apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
 UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
-rm(UtilityData1)
 
+
+#6 percent down from 2019
 UtilityData1 <- UtilityData
 apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
 apply(UtilityData1[5:7], 2, function(row) row / UtilityData1$`2019 mlbs`) -> UtilityData1[5:7]
@@ -158,8 +182,6 @@ UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge")
-rm(UtilityData1)
-
 
 
 
