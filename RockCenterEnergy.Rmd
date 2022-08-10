@@ -111,14 +111,22 @@ UtilityData3 %>%
 UtilityData1 <- UtilityData 
 apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
 apply(UtilityData1[5:7], 2, function(row) row * 1194) -> UtilityData1[5:7]
-UtilityData1 %>%
-  select(-`Gross Floor Area`) %>% 
-  gather(key = "Item", value = "Value", -Building) %>% 
-  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+UtilityData1[2:7]/UtilityData1$`Gross Floor Area` -> UtilityData1[2:7]
+
+UtilityData1 %>% 
+      select(-`Gross Floor Area`) %>% 
+  gather(key = "Item", value = "Value", -"Building") -> UtilityData1
+  cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) -> UtilityData1
+  colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
+  apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
+
+
+UtilityData1 %>%   
+ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs( title = "Carbon by Building",
         subtitle = "Units are Carbon's per year") +
-  labs(x = "Building", y = "tCO2e")
+  labs(x = "Building", y = "tCO2e/sf")
   
   
 
