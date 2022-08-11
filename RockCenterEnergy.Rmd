@@ -130,15 +130,16 @@ UtilityData1 %>%
 
 
 UtilityData1 %>%   
-ggplot(aes(x = Year, y = `Carbon/SF`, fill = Unit, group = Building)) +
-  geom_bar(stat = "identity", position = "stack") +
+ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
+  geom_bar(stat = "identity", position = "dodge") +
   labs( title = "Carbon by Building",
-        subtitle = "Units are Carbon's per year") +
-  labs(x = "Building", y = "tCO2e/sf")
+        subtitle = "Units are tCO2e/GSF") +
+  labs(x = "Building", y = "tCO2e/sf") +
+  geom_hline(aes(yintercept = IntensityLimit24), color = "blue", linetype = "dashed", size = 0.75) +
+  geom_text(aes(x = 2, y = IntensityLimit24, label = "2024 Carbon Limit"), hjust = 1, vjust = 1.25 , color = "blue") +
+  geom_hline(aes(yintercept = IntensityLimit30), linetype = "dashed", color = "blue", size = 0.5, alpha = 0.5) +
+  geom_text(aes(x = 2, y = IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.1) 
   
-  
-
-
 
 ```
 
