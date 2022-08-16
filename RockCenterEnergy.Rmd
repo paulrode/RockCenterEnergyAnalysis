@@ -32,8 +32,8 @@ options(dplyr.summarise.inform = FALSE)  # Suppress textin Knit printout.
 
 # Read in data
 
-'ElecCF' <- 0.000288962  #2021 Carbon values
-'SteamCF' <- 0.00004493
+'ElecCF' <- 0.000288962  #2021 Carbon Values
+'SteamCF' <- 0.00004493 #2021 Carbon Values
 'IntensityLimit24' <- 0.00846 #2024 Limit
 'IntensityLimit30' <- 0.00453 #2030 Limit
 
@@ -68,13 +68,13 @@ summarise_each(funs(sum)) -> UtilityData1
   select(-"Item") -> UtilityData1 
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
   apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
+
+  ####  PLOTS   ####
   
   
-# Make an EUI plot 
+# Make an EUI plot with kBTU vales for both  electric and steam  
 UtilityData2 <- UtilityData1
 apply(UtilityData2[1], 1, function(row) row / TotalFlArea ) -> UtilityData2[1]
-
-
 UtilityData2 %>% 
   ggplot(aes(x = Year, y = Value, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -85,14 +85,11 @@ UtilityData2 %>%
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
 
 
-
-#Carbon Plot
-
 #Make a Carbon table in the dataframe UtilityData1
 UtilityData3 <- UtilityData1
   apply(UtilityData3[3], 1, function(x) {ifelse(x == "Elec(kBTU)", "Elect(tCO2e)", "Steam(tCO2e)")}) -> UtilityData3[3]
-UtilityData3 %>% 
-  mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF, Value * SteamCF)) %>% 
+  UtilityData3 %>% 
+  mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% 
   ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack") +
   labs( title = "Carbon by fuel type",
