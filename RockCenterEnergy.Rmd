@@ -108,7 +108,7 @@ UtilityData3 <- UtilityData1
 
 #Plot Carbon Intensities versus LL97 Limits 
 UtilityData1 <- UtilityData 
-apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
+#apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
 apply(UtilityData1[5:7], 2, function(row) row * 1194) -> UtilityData1[5:7]
 UtilityData1[2:7]/UtilityData1$`Gross Floor Area` -> UtilityData1[2:7]
 
@@ -121,7 +121,7 @@ UtilityData1 %>%
   select(-"Item") -> UtilityData1 
   colnames(UtilityData1)  <-  c("Building", "Value", "Year", "Unit") 
   UtilityData1 %>% 
-    mutate("Carbon/SF" = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% 
+    mutate("Carbon/SF" = ifelse(Unit == "Elec(kBTU)", Value * ElecCF, Value * SteamCF)) %>% 
     select(Building, Year, Unit, `Carbon/SF`) %>% 
     mutate("Carbon" = "tCO2e") -> UtilityData1
 
