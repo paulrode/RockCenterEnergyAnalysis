@@ -121,7 +121,7 @@ UtilityData1 %>%
   select(-"Item") -> UtilityData1 
   colnames(UtilityData1)  <-  c("Building", "Value", "Year", "Unit") 
   UtilityData1 %>% 
-    mutate("Carbon/SF" = ifelse(Unit == "Elec(kBTU)", Value * ElecCF, Value * SteamCF)) %>% 
+    mutate("Carbon/SF" = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% 
     select(Building, Year, Unit, `Carbon/SF`) %>% 
     mutate("Carbon" = "tCO2e") -> UtilityData1
 
