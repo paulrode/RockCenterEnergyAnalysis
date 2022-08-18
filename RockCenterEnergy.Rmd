@@ -129,8 +129,8 @@ UtilityData1 %>%
 UtilityData1 %>%   
 ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs( title = "Carbon by Building",
-        subtitle = "Units are tCO2e/GSF") +
+  labs( title = "Carbon Intensity by Building",
+        subtitle = "Operational Carbon emissions by GSF") +
   labs(x = "Building", y = "tCO2e/sf") +
   geom_hline(aes(yintercept = IntensityLimit24), color = "blue", linetype = "dashed", size = 0.75) +
   geom_text(aes(x = 2, y = IntensityLimit24, label = "2024 Carbon Limit"), hjust = 1, vjust = 1.25 , color = "blue") +
@@ -172,14 +172,19 @@ apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`)
 apply(UtilityData1[2:4], 2, function(row) row / UtilityData1$`2019 kwh`) -> UtilityData1[2:4]
 UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
-  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) + 
+  labs( title = "Percent of 2019 Electrical Consumption by Building",
+        subtitle = "2019 Electric versys Covid years", x = "Building", y = "kWh/GSF % of 2019") +
+  theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
 
-
+  
 # 4 Steam mlb 
 SteamData %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>%
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  labs( title = "Steam Comsumption ",
+        subtitle = "Steam comsumption in mLB per year and building", x = "Building", y = "Mlb") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
 
@@ -189,8 +194,11 @@ apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`)
 UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  labs( title = "Steam Comsumption per GSF ",
+        subtitle = "Steam comsumption in mLB per GSF year and building", x = "Building", y = "Mlb/GSF") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
+  
 
 
 #6 percent down from 2019
@@ -200,6 +208,9 @@ apply(UtilityData1[5:7], 2, function(row) row / UtilityData1$`2019 mlbs`) -> Uti
 UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
+  labs( title = "Percent of 2019 Steam Consumption by Building ",
+        subtitle = "2019 Steam versys Covid years", x = "Building", y = "Mlb/GSF % of 2019") +
+  theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
 
 
