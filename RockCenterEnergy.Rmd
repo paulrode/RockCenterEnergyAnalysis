@@ -83,7 +83,16 @@ UtilityData2 %>%
   xlab("Year") +
   ylab("kBTU/SF") +
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
+```
 
+
+
+
+
+
+
+
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #Make a Carbon table in the dataframe UtilityData1
 UtilityData3 <- UtilityData1
@@ -92,18 +101,27 @@ UtilityData3 <- UtilityData1
   mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% 
   ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack") +
-  labs( title = "Carbon by fuel type",
-        subtitle = "Units are Carbon's per year") +
+  labs( title = "Carbon Emissions by fuel type",
+        subtitle = "Carbon compaired to Local Law 97 limits") +
   labs(x = "Year", y = "tCO2e") +
   #guides(fill = FALSE) +
   geom_hline(aes(yintercept = TotalFlArea * IntensityLimit24), color = "blue", linetype = "dashed", size = 0.75) +
   geom_text(aes(x = 2, y = TotalFlArea * IntensityLimit24, label = "2024 Carbon Limit"), hjust = 1, vjust = 1.25 , color = "blue") +
   geom_hline(aes(yintercept = TotalFlArea * IntensityLimit30), linetype = "dashed", color = "blue", size = 0.5, alpha = 0.5) +
-  geom_text(aes(x = 2, y = TotalFlArea * IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.1) +
+  geom_text(aes(x = 2.1, y = TotalFlArea * IntensityLimit30, label = "2030 Carbon Limit", alpha = 0.1), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.1) +
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
-
-
+  
 ```
+
+
+
+
+
+
+
+
+
+
 ```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #Plot Carbon Intensities versus LL97 Limits 
@@ -130,15 +148,22 @@ UtilityData1 %>%
 ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs( title = "Carbon Intensity by Building",
-        subtitle = "Operational Carbon emissions by GSF") +
+        subtitle = "Carbon Intensity with Local Law 97 Limtis") +
   labs(x = "Building", y = "tCO2e/sf") +
   geom_hline(aes(yintercept = IntensityLimit24), color = "blue", linetype = "dashed", size = 0.75) +
   geom_text(aes(x = 2, y = IntensityLimit24, label = "2024 Carbon Limit"), hjust = 1, vjust = 1.25 , color = "blue") +
   geom_hline(aes(yintercept = IntensityLimit30), linetype = "dashed", color = "blue", size = 0.5, alpha = 0.5) +
-  geom_text(aes(x = 2, y = IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.1) 
+  geom_text(aes(x = 2, y = IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.01) 
   
 
 ```
+
+
+
+
+
+
+
 
 
 
@@ -150,10 +175,21 @@ ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
   gather(key = "Item", value = "Value", -Building) %>%
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   labs( title = "Annual Electric by Building",
-        subtitle = "2019 versys Covid years", x = "Building", y = "kWh") +
+        subtitle = "2019 and Covid years", x = "Building", y = "kWh") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
+```
 
+
+
+
+
+
+
+
+
+
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #2 Electric kWh per GSF 
 UtilityData1 <- UtilityData
 apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
@@ -161,10 +197,23 @@ UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
   gather(key = "Item", value = "Value", -Building) %>% 
   ggplot(aes(x = Building, y = Value, fill = Item, group = Item)) +
   labs( title = "Annual Electric per Gross Squar Foot by Building",
-        subtitle = "2019 versys Covid years", x = "Building", y = "kWh/GSF") +
+        subtitle = "2019 and Covid years", x = "Building", y = "kWh/GSF") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
+```
 
+
+
+
+
+
+
+
+
+
+
+
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #3 percent kWh reductions relative to 2019 
 UtilityData1 <- UtilityData
@@ -177,8 +226,17 @@ UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
         subtitle = "2019 Electric versys Covid years", x = "Building", y = "kWh/GSF % of 2019") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
-
+```
   
+  
+  
+  
+  
+  
+  
+  
+  
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 # 4 Steam mlb 
 SteamData %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>%
@@ -187,6 +245,17 @@ SteamData %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
         subtitle = "Steam comsumption in mLB per year and building", x = "Building", y = "Mlb") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
+
+```
+
+
+
+
+
+
+
+
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #5 steam mlb per gsf 
 UtilityData1 <- UtilityData
@@ -199,7 +268,17 @@ UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
   
+```
 
+
+
+
+
+
+
+
+
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #6 percent down from 2019
 UtilityData1 <- UtilityData
@@ -213,9 +292,14 @@ UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
 
-
-
 ```
+
+
+
+
+
+
+
 
 
 ```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
