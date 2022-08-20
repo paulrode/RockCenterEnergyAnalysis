@@ -6,7 +6,7 @@ output:
   pdf_document: default
 ---
 
-A look at three years of electric and steam consumption at Rockefeller Center. 
+
 
 
 
@@ -68,9 +68,6 @@ summarise_each(funs(sum)) -> UtilityData1
   select(-"Item") -> UtilityData1 
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
   apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
-
-  ####  PLOTS   ####
-  
   
 # Make an EUI plot with kBTU vales for both  electric and steam  
 UtilityData2 <- UtilityData1
@@ -83,10 +80,19 @@ UtilityData2 %>%
   xlab("Year") +
   ylab("kBTU/SF") +
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
+
+
+ ### Delta's ###
+  UtilityData2 %>%
+    group_by(Year) %>% 
+    summarise("AnnuValues" = sum(Value)) %>% 
+    mutate("BaseYear" = max(AnnuValues)) %>% 
+    mutate("Delta" = AnnuValues/BaseYear) -> CampusDelta
+  CampusDelta[4] <- sapply(CampusDelta[4], function(x) percent(x, accuracy=1))
+  
 ```
 
-
-
+A look at three years of electric and steam consumption at Rockefeller Center using annual costs and consumptions. Intresting to note the reudcitons from 2019 a pre-Covid year to both years 2020 and 2021 to see a relitatively consistant differences of  `r CampusDelta[2,4]` and 
 
 
 
