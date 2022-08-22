@@ -148,6 +148,13 @@ UtilityData1 %>%
     mutate("Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF, Value * SteamCF)) %>% 
     select(Building, Year, Unit, `Carbon/SF`) %>% 
     mutate("Carbon" = "tCO2e") -> UtilityData1
+  
+  UtilityData %>%   
+ggplot(aes(x = Building, y = `Gross Floor Area`, fill = Building)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs( title = "Building Gross SF") +
+  labs(x = "Building", y = "Gross SF") +
+  theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) 
 
 
 UtilityData1 %>%   
