@@ -323,4 +323,24 @@ EPA_data <- read_excel("data/EPA_Annual_Energy_Use_By_Meter.xlsx", range = "A6:B
 EPA_data <- read_excel("data/EPA_Annual_Energy_Use_By_Meter.xlsx", skip = 4)
 
 
+
+
+Turnstile_data <- read.csv("data/RC_Occunpancy_Data_Details_data.csv") %>% 
+  select(Property, Date, Total.Entrants)
+
+Turnstile_data$Date <- mdy(Turnstile_data$Date)
+
+Turnstile_data %>%   
+group_by(Property, "Year" = year(Date), "Month" = month(Date)) %>% 
+  summarise(Population = sum(Total.Entrants)) %>% 
+  ggplot(aes(x = Property, y = Population, fill = Year, group = Year)) +
+   labs( title = "Turnstyle Counts by Month",
+        subtitle = "Morning Counts", x = "Building", y = "Entrants") +
+  theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
+  geom_bar(stat = "identity", position = "dodge")
+  
+
+
+  
+
 ```
