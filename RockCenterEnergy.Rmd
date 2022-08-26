@@ -92,7 +92,7 @@ UtilityData2 %>%
   
 ```
 
-A look at three years of electric and steam consumption at Rockefeller Center using annual costs and consumptions. Intresting to note the reudcitons from 2019 a pre-Covid year to both years 2020 and 2021 to see a relitatively consistant differences of  `r CampusDelta[2,4]` and 
+A look at three years of electric and steam consumption at Rockefeller Center using just annual consumptions. We capture the Covid 2019 lock down which was imposed March of 202o to compare with the following 2 years. All values in kWh and M pounds of steam to kBTU's for both. I would have expected a greater increase in 2021 but it is close to the same as 2020. Overall 2020 is `r CampusDelta[2,4]` of 2019 and 2021 is `r CampusDelta[3,4]` of 2019. 
 
 
 
@@ -331,9 +331,12 @@ Turnstile_data <- read.csv("data/RC_Occunpancy_Data_Details_data.csv") %>%
 Turnstile_data$Date <- mdy(Turnstile_data$Date)
 
 Turnstile_data %>%   
-group_by(Property, "Year" = year(Date), "Month" = month(Date)) %>% 
-  summarise(Population = sum(Total.Entrants)) %>% 
-  ggplot(aes(x = Property, y = Population, fill = Year, group = Year)) +
+group_by(Property, "Year" = year(Date)) %>%  #"Month" = month(Date)) %>% 
+  summarise(Population = sum(Total.Entrants)) -> Turnstile_data
+Turnstile_data$Year <- as.factor(Turnstile_data$Year)
+
+Turnstile_data %>% 
+  ggplot(aes(x = Property, y = Population, group = Year, fill = Year)) +
    labs( title = "Turnstyle Counts by Month",
         subtitle = "Morning Counts", x = "Building", y = "Entrants") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
