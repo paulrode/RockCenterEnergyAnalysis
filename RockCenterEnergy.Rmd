@@ -92,7 +92,7 @@ UtilityData2 %>%
   
 ```
 
-A look at three years of electric and steam consumption at Rockefeller Center using just annual consumptions. We capture the Covid 2019 lock down which was imposed March of 202o to compare with the following 2 years. All values in kWh and M pounds of steam to kBTU's for both. I would have expected a greater increase in 2021 but it is close to the same as 2020. Overall 2020 is `r CampusDelta[2,4]` of 2019 and 2021 is `r CampusDelta[3,4]` of 2019. 
+A look at three years of electric and steam consumption at Rockefeller Center using just annual consumption. We capture the Covid 2019 Governmental Lock Downs imposed March of 2020 to compare with the following 2 years. All values in were converted to kBTU's from kWh of electric, and from M pounds of steam. Total energy consumed in 2020 is `r CampusDelta[2,4]` of 2019, with no little to no physical occupancy all year the relatively small reduction consumption means that consumption is a weak function of physical occupancy. Total energy consumed in 2021 is `r CampusDelta[3,4]`of 2019. 
 
 
 
@@ -119,7 +119,7 @@ UtilityData3 <- UtilityData1
   
 ```
 
-
+This chart show the energy consumptions in untis of carbon equilivants converted using New York City's Local Law 97 carbon factors. The dashed horzontal lings reprensent the legisated limtits. 
 
 
 
