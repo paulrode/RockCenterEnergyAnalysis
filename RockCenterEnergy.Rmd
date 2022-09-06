@@ -332,16 +332,24 @@ Turnstile_data$Date <- mdy(Turnstile_data$Date)
 
 Turnstile_data %>%   
 group_by(Property, "Year" = year(Date)) %>%  #"Month" = month(Date)) %>% 
-  summarise(Population = sum(Total.Entrants)) -> Turnstile_data
-Turnstile_data$Year <- as.factor(Turnstile_data$Year)
+  summarise(Population = sum(Total.Entrants)) -> Turnstile_data1
+Turnstile_data1$Year <- as.factor(Turnstile_data1$Year)
 
-Turnstile_data %>% 
+Turnstile_data1 %>% 
   ggplot(aes(x = Property, y = Population, group = Year, fill = Year)) +
    labs( title = "Turnstyle Counts by Month",
         subtitle = "Morning Counts", x = "Building", y = "Entrants") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
   
+
+
+
+
+Turnstile_data %>%   
+group_by("Year" = year(Date)) %>%   
+  summarise(Population = sum(Total.Entrants)) -> Turnstile_data2
+Turnstile_data2$Year <- as.factor(Turnstile_data2$Year)
 
 
   
