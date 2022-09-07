@@ -6,7 +6,7 @@ output:
   pdf_document: default
 ---
 
-
+Overall energy density for the campus seperated into electric and steam sourced energy for each of the years 2019 to 2021. Steam is used for some cooling, heating and domestic hot water production. Electric covers all other services. 2019 is a re-covid year, 2020 ane 2021 show that energy use reduction were not proportional to people in the buildings. 
 
 
 
@@ -122,6 +122,7 @@ UtilityData3 <- UtilityData1
 This chart show the energy consumptions in untis of carbon equilivants converted using New York City's Local Law 97 carbon factors. The dashed horzontal lings reprensent the legisated limtits. 
 
 
+Energy may not be sttrickly proportion per occupient. 
 
 
 
@@ -171,7 +172,7 @@ ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
 
 ```
 
-
+What would carbon intensities look like if all electric heating and cooling at cop =1 and then cop = 3. 
 
 
 
