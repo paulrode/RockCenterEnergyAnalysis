@@ -92,7 +92,9 @@ UtilityData2 %>%
   
 ```
 
-A look at three years of electric and steam consumption at Rockefeller Center using just annual consumption. We capture the Covid 2019 Governmental Lock Downs imposed March of 2020 to compare with the following 2 years. All values in were converted to kBTU's from kWh of electric, and from M pounds of steam. Total energy consumed in 2020 is `r CampusDelta[2,4]` of 2019, with no little to no physical occupancy all year the relatively small reduction consumption means that consumption is a weak function of physical occupancy. Total energy consumed in 2021 is `r CampusDelta[3,4]`of 2019. 
+A look at three years of electric and steam consumption at Rockefeller Center using just annual consumption. We capture the Covid 2019 Governmental Lock Downs imposed March of 2020 to compare with the following 2 years. All values in were converted to kBTU's from kWh of electric, and from M pounds of steam. Total energy consumed in 2020 is `r CampusDelta[2,4]` of 2019, with no little to no physical occupancy all year the relatively small reduction consumption means that consumption is a weak function of physical occupancy. Total energy consumed in 2021 is `r CampusDelta[3,4]`of 2019.
+
+The drop in energy consumption 2019 to 2020 is due primarily the last of occupants so I posit that `r CampusDelta[2,4]` is associated with occupant activities, with the remaining to hvac, IT, lighting, vertical transportation, and miscellaneous plug loads, and building staff, offset somewhat by increased ventelation due to covid protocals. Interesting that both steam and electric dropped by similar amounts. Steam which is mostly used for heating, I would have thought would go up to make up for the occupient body heat that is lost. This leads me to believe that ventilation rates are so high and envelope losses so high that body head does not matter. 
 
 
 
