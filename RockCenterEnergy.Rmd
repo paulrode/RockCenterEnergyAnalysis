@@ -89,6 +89,15 @@ UtilityData2 %>%
     mutate("BaseYear" = max(AnnuValues)) %>% 
     mutate("Delta" = AnnuValues/BaseYear) -> CampusDelta
   CampusDelta[4] <- sapply(CampusDelta[4], function(x) percent(x, accuracy=1))
+```
+  
+
+```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+EPA_All_Data <- read_excel("data/EPA_Annual_Energy_Use_By_MeterAllBuld.xlsx", sheet = "Annual Usage", range = "A6:BB158" , col_names = TRUE, na = "Not Available", col_types = NULL ) 
+
+
+%>% select(-5,-6)
+  
   
 ```
 
