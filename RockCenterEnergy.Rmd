@@ -93,8 +93,14 @@ UtilityData2 %>%
   
 
 ```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-EPA_All_Data <- read_excel("data/EPA_Annual_Energy_Use_By_MeterAllBuld.xlsx", sheet = "Annual Usage", range = "A6:BB158" , col_names = TRUE, na = "Not Available", col_types = NULL ) 
+All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) 
 
+All_Data %>% 
+  group_by(year(All_Data$`Start Date`)) %>% 
+  summarise("Elect" = sum(kwh) )
+
+
+year(All_Data$`Start Date`)
   
   
 ```
