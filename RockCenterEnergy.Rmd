@@ -93,14 +93,19 @@ UtilityData2 %>%
   
 
 ```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) 
+All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
+
+
+colnames(All_Data) <- c("Date",  "kwh")
 
 All_Data %>% 
-  group_by(year(All_Data$`Start Date`)) %>% 
-  summarise("Elect" = sum(kwh) )
+  group_by(year(Date)) %>% 
+  summarise("Elect" = sum(kwh)) -> All_Data
+colnames(All_Data) <- c("Date", "Elect")
+All_Data %>% 
+  filter(Date == 2019 | Date == 2020 | Date == 2021 )
 
 
-year(All_Data$`Start Date`)
   
   
 ```
