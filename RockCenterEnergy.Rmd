@@ -69,7 +69,22 @@ summarise_each(funs(sum)) -> UtilityData1
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
   apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
   
-# Make an EUI plot with kBTU vales for both  electric and steam  
+# Adding NBC Electric
+  All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
+colnames(All_Data) <- c("Date",  "kwh")
+All_Data %>% 
+  group_by(year(Date)) %>% 
+  summarise("Elect" = sum(kwh)) -> All_Data
+colnames(All_Data) <- c("Date", "Elect")
+All_Data %>% 
+  filter(Date == 2019 | Date == 2020 | Date == 2021 ) -> All_Data
+UtilityData1[1,1] <- UtilityData1[1,1] + All_Data[1,2]
+UtilityData1[2,1] <- UtilityData1[2,1] + All_Data[2,2]
+UtilityData1[3,1] <- UtilityData1[3,1] + All_Data[3,2]
+  
+
+
+  # Make an EUI plot with kBTU vales for both  electric and steam  
 UtilityData2 <- UtilityData1
 apply(UtilityData2[1], 1, function(row) row / TotalFlArea ) -> UtilityData2[1]
 UtilityData2 %>% 
@@ -91,25 +106,6 @@ UtilityData2 %>%
   CampusDelta[4] <- sapply(CampusDelta[4], function(x) percent(x, accuracy=1))
 ```
   
-
-```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
-
-
-colnames(All_Data) <- c("Date",  "kwh")
-
-All_Data %>% 
-  group_by(year(Date)) %>% 
-  summarise("Elect" = sum(kwh)) -> All_Data
-colnames(All_Data) <- c("Date", "Elect")
-All_Data %>% 
-  filter(Date == 2019 | Date == 2020 | Date == 2021 ) -> All_Data
-UtilityData1[1,1] <- UtilityData1[1,1] + All_Data[1,2]
-UtilityData1[2,1] <- UtilityData1[2,1] + All_Data[2,2]
-UtilityData1[3,1] <- UtilityData1[3,1] + All_Data[3,2]
-  
-  
-```
 
 A look at three years of electric and steam consumption at Rockefeller Center using just annual consumption. We capture the Covid 2019 Governmental Lock Downs imposed March of 2020 to compare with the following 2 years. All values in were converted to kBTU's from kWh of electric, and from M pounds of steam. Total energy consumed in 2020 is `r CampusDelta[2,4]` of 2019, with no little to no physical occupancy all year the relatively small reduction consumption means that consumption is a weak function of physical occupancy. Total energy consumed in 2021 is `r CampusDelta[3,4]`of 2019.
 
