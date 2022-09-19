@@ -54,6 +54,21 @@ BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "S
 UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, by="Building")
 UtilityData[is.na(UtilityData)] <- 0
 
+
+# Adding NBC Electric
+  All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
+colnames(All_Data) <- c("Date",  "kwh")
+All_Data %>% 
+  group_by(year(Date)) %>% 
+  summarise("Elect" = sum(kwh)) -> All_Data
+colnames(All_Data) <- c("Date", "Elect")
+All_Data %>% 
+  filter(Date == 2019 | Date == 2020 | Date == 2021 ) -> All_Data
+UtilityData[4,2] <- UtilityData[4,2] + All_Data[1,2]
+UtilityData[4,3] <- UtilityData[4,3] + All_Data[2,2]
+UtilityData[4,4] <- UtilityData[4,4] + All_Data[3,2]
+
+
 #Campus EUI for each year 
 UtilityData1 <- UtilityData 
 apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
@@ -69,20 +84,6 @@ summarise_each(funs(sum)) -> UtilityData1
   colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
   apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
   
-# Adding NBC Electric
-  All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
-colnames(All_Data) <- c("Date",  "kwh")
-All_Data %>% 
-  group_by(year(Date)) %>% 
-  summarise("Elect" = sum(kwh)) -> All_Data
-colnames(All_Data) <- c("Date", "Elect")
-All_Data %>% 
-  filter(Date == 2019 | Date == 2020 | Date == 2021 ) -> All_Data
-UtilityData1[1,1] <- UtilityData1[1,1] + All_Data[1,2]
-UtilityData1[2,1] <- UtilityData1[2,1] + All_Data[2,2]
-UtilityData1[3,1] <- UtilityData1[3,1] + All_Data[3,2]
-  
-
 
   # Make an EUI plot with kBTU vales for both  electric and steam  
 UtilityData2 <- UtilityData1
