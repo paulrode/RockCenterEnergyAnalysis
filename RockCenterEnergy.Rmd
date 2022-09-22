@@ -188,6 +188,22 @@ ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
   geom_text(aes(x = 2, y = IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.01) 
   
 
+CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00846, IntensityLimit30 = 0.00453)
+CarbonLimits$Year <- as.character(CarbonLimits$Year)
+
+
+UtilityData1 %>% 
+  left_join(BuildingGSF) %>% 
+  left_join(CarbonLimits) -> UtilityData1
+
+#Add if statement here. 
+
+
+
+
+
+
+
 ```
 
 What would carbon intensities look like if all electric heating and cooling at cop =1 and then cop = 3. 
