@@ -194,7 +194,12 @@ CarbonLimits$Year <- as.character(CarbonLimits$Year)
 
 UtilityData1 %>% 
   left_join(BuildingGSF) %>% 
-  left_join(CarbonLimits) -> UtilityData1
+  left_join(CarbonLimits) %>% 
+  mutate('tCO2e' = IntensityLimit24 - `Carbon/SF`) -> UtilityData1
+
+ifelse(UtilityData1$tCO2e > 0, 0, 268)
+
+
 
 #Add if statement here. 
 
