@@ -121,9 +121,10 @@ The drop in energy consumption 2019 to 2020 is due primarily the last of occupan
 #Make a Carbon table in the dataframe UtilityData1
 UtilityData3 <- UtilityData1
   apply(UtilityData3[3], 1, function(x) {ifelse(x == "Elec(kBTU)", "Elect(tCO2e)", "Steam(tCO2e)")}) -> UtilityData3[3]
+  
+  
   UtilityData3 %>% 
-  mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% 
-  ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
+  mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack") +
   labs( title = "Carbon Emissions by fuel type",
         subtitle = "Carbon compaired to Local Law 97 limits") +
@@ -192,12 +193,15 @@ CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00846, Intensi
 CarbonLimits$Year <- as.character(CarbonLimits$Year)
 
 
+
+###### Making table for penalties ######
 UtilityData1 %>% 
   left_join(BuildingGSF) %>% 
   left_join(CarbonLimits) %>% 
   mutate('tCO2e' = IntensityLimit24 - `Carbon/SF`) -> UtilityData1
 
-ifelse(UtilityData1$tCO2e > 0, 0, 268)
+UtilityData1 %>% 
+  mutate("Penality" = ifelse(tCO2e > 0, 0, (268 * tCO2e * UtilityData1$`Gross Floor Area`))) -> UtilityData1
 
 
 
