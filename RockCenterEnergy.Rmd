@@ -198,14 +198,14 @@ CarbonLimits$Year <- as.character(CarbonLimits$Year)
 UtilityData1 %>% 
   left_join(BuildingGSF) %>% 
   left_join(CarbonLimits) %>% 
-  mutate('tCO2e' = IntensityLimit24 - `Carbon/SF`) -> UtilityData1
+  mutate('tCO2e' = IntensityLimit24 - `Carbon/SF`) -> UtilityDataT
 
-UtilityData1 %>% 
-  mutate("Penality" = ifelse(tCO2e > 0, 0, (268 * tCO2e * UtilityData1$`Gross Floor Area`))) -> UtilityData1
+UtilityDataT %>% 
+  mutate("Penality" = ifelse(tCO2e > 0, 0, (268 * tCO2e * UtilityDataT$`Gross Floor Area`))) -> UtilityDataT
 
+UtilityDataT %>% 
+  filter(Year == 2019) -> UtilityDataT
 
-
-#Add if statement here. 
 
 
 
