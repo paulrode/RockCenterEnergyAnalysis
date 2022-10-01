@@ -204,8 +204,12 @@ UtilityDataT %>%
   mutate("Penality" = ifelse(tCO2e > 0, 0, (268 * tCO2e * UtilityDataT$`Gross Floor Area`))) -> UtilityDataT
 
 UtilityDataT %>% 
-  filter(Year == 2019) -> UtilityDataT
+  filter(Year == 2019) %>% 
+  select(-Year, -Unit, -Carbon, -IntensityLimit30, -IntensityLimit24) %>% 
+  group_by(Building) %>% 
+  summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
 
+kable(UtilityDataT2)
 
 
 
