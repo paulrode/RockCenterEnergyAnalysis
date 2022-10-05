@@ -209,7 +209,7 @@ UtilityDataT %>%
   group_by(Building) %>% 
   summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
 
-kable(UtilityDataT2, col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "Penality Tabulation", format = "simple", digits = getOption("digits"))
+kbl(UtilityDataT2, col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"),  "simple") 
 
 
 
