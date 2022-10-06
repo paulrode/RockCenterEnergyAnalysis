@@ -1,17 +1,3 @@
----
-title: "Rockefeller Center Energy Analysis"
-output:
-  html_document:
-    code_folding: hide
-  pdf_document: default
----
-
-Overall energy density for the campus seperated into electric and steam sourced energy for each of the years 2019 to 2021. Steam is used for some cooling, heating and domestic hot water production. Electric covers all other services. 2019 is a re-covid year, 2020 ane 2021 show that energy use reduction were not proportional to people in the buildings. 
-
-
-
-```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-
 # Load packages 
 my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable", "scales")
 invisible( lapply(my_packages, require, character.only = TRUE))
@@ -56,7 +42,7 @@ UtilityData[is.na(UtilityData)] <- 0
 
 
 # Adding NBC Electric
-  All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
+All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
 colnames(All_Data) <- c("Date",  "kwh")
 All_Data %>% 
   group_by(year(Date)) %>% 
@@ -74,18 +60,18 @@ UtilityData1 <- UtilityData
 apply(UtilityData1[2:4], 2, function(row) row * 3.4121 ) -> UtilityData1[2:4]
 apply(UtilityData1[5:7], 2, function(row) row * 1194) -> UtilityData1[5:7]
 UtilityData1 %>% select(`2019 kwh`, `2020 kwh`, `2021 kwh`, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`, `Gross Floor Area`) %>%
-summarise_each(funs(sum)) -> UtilityData1
-    TotalFlArea <- UtilityData1$`Gross Floor Area`
-    UtilityData1 %>% 
-      select(-`Gross Floor Area`) %>% 
+  summarise_each(funs(sum)) -> UtilityData1
+TotalFlArea <- UtilityData1$`Gross Floor Area`
+UtilityData1 %>% 
+  select(-`Gross Floor Area`) %>% 
   gather(key = "Item", value = "Value") -> UtilityData1
-  cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) %>% 
+cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) %>% 
   select(-"Item") -> UtilityData1 
-  colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
-  apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
-  
+colnames(UtilityData1)  <-  c("Value", "Year", "Unit") 
+apply(UtilityData1[3], 1, function(x) {ifelse(x == "kwh", "Elec(kBTU)", "Steam(kBTU)")}) -> UtilityData1[3]
 
-  # Make an EUI plot with kBTU vales for both  electric and steam  
+
+# Make an EUI plot with kBTU vales for both  electric and steam  
 UtilityData2 <- UtilityData1
 apply(UtilityData2[1], 1, function(row) row / TotalFlArea ) -> UtilityData2[1]
 UtilityData2 %>% 
@@ -98,32 +84,22 @@ UtilityData2 %>%
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
 
 
- ### Delta's ###
-  UtilityData2 %>%
-    group_by(Year) %>% 
-    summarise("AnnuValues" = sum(Value)) %>% 
-    mutate("BaseYear" = max(AnnuValues)) %>% 
-    mutate("Delta" = AnnuValues/BaseYear) -> CampusDelta
-  CampusDelta[4] <- sapply(CampusDelta[4], function(x) percent(x, accuracy=1))
-```
-  
-
-A look at three years of electric and steam consumption at Rockefeller Center using just annual consumption. We capture the Covid 2019 Governmental Lock Downs imposed March of 2020 to compare with the following 2 years. All values in were converted to kBTU's from kWh of electric, and from M pounds of steam. Total energy consumed in 2020 is `r CampusDelta[2,4]` of 2019, with no little to no physical occupancy all year the relatively small reduction consumption means that consumption is a weak function of physical occupancy. Total energy consumed in 2021 is `r CampusDelta[3,4]`of 2019.
-
-The drop in energy consumption 2019 to 2020 is due primarily the last of occupants so I posit that `r CampusDelta[2,4]` is associated with occupant activities, with the remaining to hvac, IT, lighting, vertical transportation, and miscellaneous plug loads, and building staff, offset somewhat by increased ventelation due to covid protocals. Interesting that both steam and electric dropped by similar amounts. Steam which is mostly used for heating, I would have thought would go up to make up for the occupient body heat that is lost. This leads me to believe that ventilation rates are so high and envelope losses so high that body head does not matter. 
+### Delta's ###
+UtilityData2 %>%
+  group_by(Year) %>% 
+  summarise("AnnuValues" = sum(Value)) %>% 
+  mutate("BaseYear" = max(AnnuValues)) %>% 
+  mutate("Delta" = AnnuValues/BaseYear) -> CampusDelta
+CampusDelta[4] <- sapply(CampusDelta[4], function(x) percent(x, accuracy=1))
 
 
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #Make a Carbon table in the dataframe UtilityData1
 UtilityData3 <- UtilityData1
-  apply(UtilityData3[3], 1, function(x) {ifelse(x == "Elec(kBTU)", "Elect(tCO2e)", "Steam(tCO2e)")}) -> UtilityData3[3]
-  
-  
-  UtilityData3 %>% 
+apply(UtilityData3[3], 1, function(x) {ifelse(x == "Elec(kBTU)", "Elect(tCO2e)", "Steam(tCO2e)")}) -> UtilityData3[3]
+
+
+UtilityData3 %>% 
   mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack") +
   labs( title = "Carbon Emissions by fuel type",
@@ -135,20 +111,8 @@ UtilityData3 <- UtilityData1
   geom_hline(aes(yintercept = TotalFlArea * IntensityLimit30), linetype = "dashed", color = "blue", size = 0.5, alpha = 0.5) +
   geom_text(aes(x = 2.1, y = TotalFlArea * IntensityLimit30, label = "2030 Carbon Limit", alpha = 0.1), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.1) +
   scale_fill_manual(values = c("#CC0033", "#FFFFCC"))
-  
-```
-
-This chart show the energy consumptions in untis of carbon equilivants converted using New York City's Local Law 97 carbon factors. The dashed horzontal lings reprensent the legisated limtits. 
 
 
-Energy may not be sttrickly proportion per occupient. 
-
-
-
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #Plot Carbon Intensities versus LL97 Limits 
 UtilityData1 <- UtilityData 
@@ -161,16 +125,16 @@ UtilityData1 %>% select("Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 kB
 
 UtilityData1 %>% 
   gather(key = "Item", value = "Value", -"Building") -> UtilityData1
-  cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) %>% 
+cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) %>% 
   select(-"Item") -> UtilityData1 
-  colnames(UtilityData1)  <-  c("Building", "Value", "Year", "Unit") 
-  UtilityData1 %>% 
-    mutate("Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF, Value * SteamCF)) %>% 
-    select(Building, Year, Unit, `Carbon/SF`) %>% 
-    mutate("Carbon" = "tCO2e") -> UtilityData1
-  
-  UtilityData %>%   
-ggplot(aes(x = Building, y = `Gross Floor Area`, fill = Building)) +
+colnames(UtilityData1)  <-  c("Building", "Value", "Year", "Unit") 
+UtilityData1 %>% 
+  mutate("Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF, Value * SteamCF)) %>% 
+  select(Building, Year, Unit, `Carbon/SF`) %>% 
+  mutate("Carbon" = "tCO2e") -> UtilityData1
+
+UtilityData %>%   
+  ggplot(aes(x = Building, y = `Gross Floor Area`, fill = Building)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs( title = "Building Gross SF") +
   labs(x = "Building", y = "Gross SF") +
@@ -178,7 +142,7 @@ ggplot(aes(x = Building, y = `Gross Floor Area`, fill = Building)) +
 
 
 UtilityData1 %>%   
-ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
+  ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs( title = "Carbon Intensity by Building",
         subtitle = "Carbon Intensity with Local Law 97 Limtis") +
@@ -187,7 +151,7 @@ ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
   geom_text(aes(x = 2, y = IntensityLimit24, label = "2024 Carbon Limit"), hjust = 1, vjust = 1.25 , color = "blue") +
   geom_hline(aes(yintercept = IntensityLimit30), linetype = "dashed", color = "blue", size = 0.5, alpha = 0.5) +
   geom_text(aes(x = 2, y = IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.01) 
-  
+
 
 CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00846, IntensityLimit30 = 0.00453)
 CarbonLimits$Year <- as.character(CarbonLimits$Year)
@@ -213,23 +177,6 @@ kable(UtilityDataT2, col.names = c("Building", "Carbon/GSF", "Total Carbon", "Ne
 
 
 
-
-
-
-```
-
-What would carbon intensities look like if all electric heating and cooling at cop =1 and then cop = 3. 
-
-
-
-
-
-
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-
 #1 Electric kWh
 ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>% 
   gather(key = "Item", value = "Value", -Building) %>%
@@ -238,18 +185,9 @@ ElectricData %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
         subtitle = "2019 and Covid years", x = "Building", y = "kWh") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
-```
 
 
 
-
-
-
-
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #2 Electric kWh per GSF 
 UtilityData1 <- UtilityData
 apply(UtilityData1[2:7], 2, function(row) row / UtilityData1$`Gross Floor Area`) -> UtilityData1[2:7]
@@ -260,20 +198,8 @@ UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
         subtitle = "2019 and Covid years", x = "Building", y = "kWh/GSF") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
-```
 
 
-
-
-
-
-
-
-
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #3 percent kWh reductions relative to 2019 
 UtilityData1 <- UtilityData
@@ -286,17 +212,10 @@ UtilityData1 %>% select(Building, `2019 kwh`, `2020 kwh`, `2021 kwh`) %>%
         subtitle = "2019 Electric versys Covid years", x = "Building", y = "kWh/GSF % of 2019") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
-```
-  
-  
-  
-  
-  
-  
-  
-  
-  
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+
+
+
+
 # 4 Steam mlb 
 SteamData %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>% 
   gather(key = "Item", value = "Value", -Building) %>%
@@ -306,16 +225,8 @@ SteamData %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
 
-```
 
 
-
-
-
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #5 steam mlb per gsf 
 UtilityData1 <- UtilityData
@@ -327,18 +238,11 @@ UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
         subtitle = "Steam comsumption in mLB per GSF year and building", x = "Building", y = "Mlb/GSF") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
-  
-```
 
 
 
 
 
-
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #6 percent down from 2019
 UtilityData1 <- UtilityData
@@ -352,17 +256,7 @@ UtilityData1 %>% select(Building, `2019 mlbs`, `2020 mlbs`, `2021 mlbs`) %>%
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
 
-```
 
-
-
-
-
-
-
-
-
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 
 EPA_data <- read_excel("data/EPA_Annual_Energy_Use_By_Meter.xlsx", range = "A6:BB155" , col_names = FALSE, na = "NA", col_types = NULL )
@@ -378,27 +272,25 @@ Turnstile_data <- read.csv("data/RC_Occunpancy_Data_Details_data.csv") %>%
 Turnstile_data$Date <- mdy(Turnstile_data$Date)
 
 Turnstile_data %>%   
-group_by(Property, "Year" = year(Date)) %>%  #"Month" = month(Date)) %>% 
+  group_by(Property, "Year" = year(Date)) %>%  #"Month" = month(Date)) %>% 
   summarise(Population = sum(Total.Entrants)) -> Turnstile_data1
 Turnstile_data1$Year <- as.factor(Turnstile_data1$Year)
 
 Turnstile_data1 %>% 
   ggplot(aes(x = Property, y = Population, group = Year, fill = Year)) +
-   labs( title = "Turnstyle Counts by Month",
+  labs( title = "Turnstyle Counts by Month",
         subtitle = "Morning Counts", x = "Building", y = "Entrants") +
   theme(axis.text.x = element_text (angle = 45, vjust = 1, hjust=1)) +
   geom_bar(stat = "identity", position = "dodge")
-  
+
 
 
 
 
 Turnstile_data %>%   
-group_by("Year" = year(Date)) %>%   
+  group_by("Year" = year(Date)) %>%   
   summarise(Population = sum(Total.Entrants)) -> Turnstile_data2
 Turnstile_data2$Year <- as.factor(Turnstile_data2$Year)
 
 
-  
 
-```
