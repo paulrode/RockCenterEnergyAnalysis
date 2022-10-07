@@ -13,7 +13,9 @@ Overall energy density for the campus seperated into electric and steam sourced 
 ```{r Data Setup, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Load packages 
-my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "kableExtra", "formattable", "scales")
+my_packages <- c("tidyverse", "vroom" , "janitor" , "glue" , "tsibble" , "tidytext","lubridate", "fable", "tsibbledata", "ggplot2", "forecast", "tseries", "rio", "zoo", "readxl", "tsibbledata", "knitr", "formattable", "scales")   
+
+#"kableExtra"
 invisible( lapply(my_packages, require, character.only = TRUE))
 
 #Set up environment 
@@ -148,7 +150,7 @@ Energy may not be sttrickly proportion per occupient.
 
 
 
-```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, results='asis'}
 
 #Plot Carbon Intensities versus LL97 Limits 
 UtilityData1 <- UtilityData 
@@ -209,7 +211,7 @@ UtilityDataT %>%
   group_by(Building) %>% 
   summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
 
-kable(UtilityDataT2, col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"),  "simple") 
+kable(UtilityDataT2, format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits") ) 
 
 
 
