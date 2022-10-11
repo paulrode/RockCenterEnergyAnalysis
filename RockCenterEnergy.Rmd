@@ -193,7 +193,12 @@ ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
 
 CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00846, IntensityLimit30 = 0.00453)
 CarbonLimits$Year <- as.character(CarbonLimits$Year)
+```
 
+
+
+
+```{r  echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, results='asis'}
 
 
 ###### Making table for penalties ######
@@ -212,6 +217,8 @@ UtilityDataT %>%
   summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
 
 kable(UtilityDataT2, format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits") ) 
+
+
 
 
 
