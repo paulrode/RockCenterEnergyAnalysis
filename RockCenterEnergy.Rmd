@@ -216,7 +216,7 @@ UtilityDataT %>%
   summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
 
 kable(UtilityDataT2, format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
-  kable_styling()
+kable_styling(bootstrap_options = "striped",full_width = F) 
 
 
 
