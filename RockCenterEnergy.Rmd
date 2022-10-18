@@ -42,6 +42,8 @@ SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "She
 
 ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL ) %>% select(-5,-6)
 
+ElectricData2 <- read_excel("data/LL97 Fines Rock Center - new rules.xlsx", sheet = "LL97 Fines", range = "A3:J14", col_names = TRUE, na = "NA", col_types = NULL)
+
 ElectricData %>% filter(Building == '1 Rock' | Building == '600 5th') %>% 
   select( -Building) %>% 
   summarise_each(funs(sum)) %>% 
