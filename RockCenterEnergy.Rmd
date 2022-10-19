@@ -42,7 +42,16 @@ SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "She
 
 ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL ) %>% select(-5,-6)
 
-ElectricData2 <- read_excel("data/LL97 Fines Rock Center - new rules.xlsx", sheet = "LL97 Fines", range = "A3:J14", col_names = TRUE, na = "NA", col_types = NULL)
+
+
+################################
+# New Rules Source Excel Sheet #
+RCEnergy_2 <- read_excel("data/LL97 Fines Rock Center - new rules.xlsx", sheet = "LL97 Fines", range = "A3:J14", col_names = TRUE, na = "NA", col_types = NULL)
+
+Utilitydata_2 <- select(RCEnergy_2, "Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 mlbs", "2020 mlbs", "2021 mlbs", sqft)
+
+
+################################
 
 ElectricData %>% filter(Building == '1 Rock' | Building == '600 5th') %>% 
   select( -Building) %>% 
