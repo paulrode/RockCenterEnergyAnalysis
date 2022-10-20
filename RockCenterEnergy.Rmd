@@ -49,6 +49,7 @@ ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "
 RCEnergy_2 <- read_excel("data/LL97 Fines Rock Center - new rules.xlsx", sheet = "LL97 Fines", range = "A3:J14", col_names = TRUE, na = "NA", col_types = NULL)
 
 Utilitydata_2 <- select(RCEnergy_2, "Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 mlbs", "2020 mlbs", "2021 mlbs", sqft)
+colnames(Utilitydata_2) <- c("Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 mlbs", "2020 mlbs", "2021 mlbs", "Gross Floor Area")
 
 
 ################################
@@ -79,6 +80,12 @@ All_Data %>%
 UtilityData[4,2] <- UtilityData[4,2] + All_Data[1,2]
 UtilityData[4,3] <- UtilityData[4,3] + All_Data[2,2]
 UtilityData[4,4] <- UtilityData[4,4] + All_Data[3,2]
+
+################################
+# Add Utility Data back in here
+################################
+UtilityData <- Utilitydata_2
+
 
 
 #Campus EUI for each year 
