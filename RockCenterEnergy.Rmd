@@ -33,8 +33,10 @@ options(dplyr.summarise.inform = FALSE)  # Suppress textin Knit printout.
 
 # Read in data
 
-'ElecCF' <- 0.000288962  #2021 Carbon Values
-'SteamCF' <- 0.00004493 #2021 Carbon Values
+'ElecCF24' <- 0.000288962  #2024 Carbon Value
+'SteamCF24' <- 0.00004493 #2024 Carbon Value
+'ElecCF30' <- 0.000288962 * 0.7  #2030 Carbon Value
+'SteamCF30' <- 0.00004493 * 0.7 #2024 Carbon Value
 'IntensityLimit24' <- 0.00846 #2024 Limit
 'IntensityLimit30' <- 0.00453 #2030 Limit
 
@@ -143,7 +145,7 @@ UtilityData3 <- UtilityData1
   
   
   UtilityData3 %>% 
-  mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF / 3.4121, Value * SteamCF)) %>% ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
+  mutate(Carbon = ifelse(Unit == "Elec(kBTU)", Value * ElecCF24 / 3.4121, Value * SteamCF24)) %>% ggplot(aes(x = Year, y = Carbon, fill = Unit)) +
   geom_bar(stat = "identity", position = "stack") +
   labs( title = "Carbon Emissions by fuel type",
         subtitle = "Carbon compaired to Local Law 97 limits") +
@@ -184,7 +186,7 @@ UtilityData1 %>%
   select(-"Item") -> UtilityData1 
   colnames(UtilityData1)  <-  c("Building", "Value", "Year", "Unit") 
   UtilityData1 %>% 
-    mutate("Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF, Value * SteamCF)) %>% 
+    mutate("Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF24, Value * SteamCF24)) %>% 
     select(Building, Year, Unit, `Carbon/SF`) %>% 
     mutate("Carbon" = "tCO2e") -> UtilityData1
   
@@ -233,8 +235,12 @@ UtilityDataT %>%
   group_by(Building) %>% 
   summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
 
-kable(UtilityDataT2, format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
-kable_styling(bootstrap_options = "striped",full_width = F) 
+
+# Tabe 
+UtilityDataT2 %>% 
+  adorn_totals(where = "row", fill = "-", na.rm = TRUE, name = "Total") %>% 
+kable( format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
+kable_styling(bootstrap_options = "striped",full_width = F)
 
 
 
