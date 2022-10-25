@@ -235,12 +235,15 @@ UtilityDataT %>%
   group_by(Building) %>% 
   summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
 
+UtilityDataT2$Penalty <- format(UtilityDataT2$Penalty,format = "f",  decimal.mark = ",",digits = 0, big.mark = ",", small.mark = ",")
 
-# Tabe 
+
+# Table 
 UtilityDataT2 %>% 
   adorn_totals(where = "row", fill = "-", na.rm = TRUE, name = "Total") %>% 
 kable( format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
-kable_styling(bootstrap_options = "striped",full_width = F)
+kable_styling(bootstrap_options = "striped",full_width = F) %>% 
+ column_spec(4, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
 
 
 
