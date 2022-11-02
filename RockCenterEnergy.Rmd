@@ -34,18 +34,20 @@ options(dplyr.summarise.inform = FALSE)  # Suppress textin Knit printout.
 # Read in data
 
 
-'GridFactor2030' <- 0.5
-'GridFactor2050' <- 0.1 
-'ElecCF24' <- 0.000288962  #2024 Carbon Value
-'SteamCF24' <- 0.00004493 #2024 Carbon Value
-'ElecCF30' <- 0.000288962 * `GridFactor2030`#2030 Carbon Value
-'SteamCF30' <- 0.00004493 * `GridFactor2030` #2024 Carbon Value
+'EGridFactor2030' <- 0.5
+'EGridFactor2050' <- 0.1 
+'SGridFactor2030' <- 0.94
+'SGridFactor2050' <- 0.95
+'ElecCF24' <- 0.000288962  #2024 Carbon Value tCO2e/kWh
+'SteamCF24' <- 0.00004493 #2024 Carbon Value tCO2e/kBTU
+'ElecCF30' <- 0.000288962 * `EGridFactor2030`#2030 Carbon Value
+'SteamCF30' <- 0.00004493 * `SGridFactor2030` #2024 Carbon Value
 'IntensityLimit24' <- 0.00758 #2024 Limit
 'IntensityLimit30' <- 0.002690852 #2030 Limit
 
-SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B2:G11" , col_names = TRUE, na = "NA", col_types = NULL ) %>%  select(-5,-6)
+#SteamData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = #"B2:G11" , col_names = TRUE, na = "NA", col_types = NULL ) %>%  select(-5,-6)
 
-ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B13:G23" , col_names = TRUE, na = "NA", col_types = NULL ) %>% select(-5,-6)
+#ElectricData <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = #"B13:G23" , col_names = TRUE, na = "NA", col_types = NULL ) %>% select(-5,-6)
 
 
 
@@ -56,35 +58,36 @@ RCEnergy_2 <- read_excel("data/LL97 Fines Rock Center - new rules.xlsx", sheet =
 Utilitydata_2 <- select(RCEnergy_2, "Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 mlbs", "2020 mlbs", "2021 mlbs", sqft)
 colnames(Utilitydata_2) <- c("Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 mlbs", "2020 mlbs", "2021 mlbs", "Gross Floor Area")
 
+BuildingGSF <- select(Utilitydata_2, Building, 'Gross Floor Area')
 
 ################################
 
-ElectricData %>% filter(Building == '1 Rock' | Building == '600 5th') %>% 
-  select( -Building) %>% 
-  summarise_each(funs(sum)) %>% 
-  mutate(Building = "1 Rock and 600 5th") %>% 
-  select(4,1,2,3) %>% rbind(ElectricData) %>% 
-  filter(Building != '1 Rock' & Building != '600 5th') -> ElectricData
-
-BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = "B28:C39" , col_names = TRUE, na = "NA", col_types = NULL ) %>% 
-  filter(Building != '1 Rock' & Building != '600 5th')
-
-UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, by="Building")
-UtilityData[is.na(UtilityData)] <- 0
+#ElectricData %>% filter(Building == '1 Rock' | Building == '600 5th') %>% 
+#  select( -Building) %>% 
+#  summarise_each(funs(sum)) %>% 
+#  mutate(Building = "1 Rock and 600 5th") %>% 
+#  select(4,1,2,3) %>% rbind(ElectricData) %>% 
+#  filter(Building != '1 Rock' & Building != '600 5th') -> ElectricData
+#
+#BuildingGSF <- read_excel("data/Energy_Data_for_Net_Zero_Study.xlsx", sheet = "Sheet1", range = #"B28:C39" , col_names = TRUE, na = "NA", col_types = NULL ) %>% 
+#  filter(Building != '1 Rock' & Building != '600 5th')
+#
+#UtilityData <- left_join(ElectricData, SteamData, by="Building") %>% left_join(BuildingGSF, #by="Building")
+#UtilityData[is.na(UtilityData)] <- 0
 
 
 # Adding NBC Electric
-  All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = "B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) %>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
-colnames(All_Data) <- c("Date",  "kwh")
-All_Data %>% 
-  group_by(year(Date)) %>% 
-  summarise("Elect" = sum(kwh)) -> All_Data
-colnames(All_Data) <- c("Date", "Elect")
-All_Data %>% 
-  filter(Date == 2019 | Date == 2020 | Date == 2021 ) -> All_Data
-UtilityData[4,2] <- UtilityData[4,2] + All_Data[1,2]
-UtilityData[4,3] <- UtilityData[4,3] + All_Data[2,2]
-UtilityData[4,4] <- UtilityData[4,4] + All_Data[3,2]
+#  All_Data <- read_excel("data/LL97 Fines Rock Center.xlsx", sheet = "NBC Energy", range = #"B1:D64" , col_names = TRUE, na = "Not Available", col_types = c("guess", "guess", "numeric") ) #%>% mutate(across(contains('Date'), ymd)) %>% select("Start Date", "kwh")
+#colnames(All_Data) <- c("Date",  "kwh")
+#All_Data %>% 
+#  group_by(year(Date)) %>% 
+#  summarise("Elect" = sum(kwh)) -> All_Data
+#colnames(All_Data) <- c("Date", "Elect")
+#All_Data %>% 
+#  filter(Date == 2019 | Date == 2020 | Date == 2021 ) -> All_Data
+#UtilityData[4,2] <- UtilityData[4,2] + All_Data[1,2]
+#UtilityData[4,3] <- UtilityData[4,3] + All_Data[2,2]
+#UtilityData[4,4] <- UtilityData[4,4] + All_Data[3,2]
 
 ################################
 # Add Utility Data back in here
@@ -236,7 +239,7 @@ ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
   geom_text(aes(x = 2, y = IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.01) 
   
 
-CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00846, IntensityLimit30 = 0.00453)
+CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00758, IntensityLimit30 = 0.002690852)
 CarbonLimits$Year <- as.character(CarbonLimits$Year)
 ```
 
@@ -248,8 +251,8 @@ CarbonLimits$Year <- as.character(CarbonLimits$Year)
 
 ###### Making table for penalties ######
 UtilityData1 %>% 
-  left_join(BuildingGSF) %>% 
-  left_join(CarbonLimits) %>% 
+  left_join(BuildingGSF) %>%   # ######### -------> need to make a BuildingGSF object
+  left_join(CarbonLimits) %>%  # ######### -------> need to make a CarbonLimits object
   mutate('tCO2e' = IntensityLimit24 - `Carbon/SF`) -> UtilityDataT
 
 UtilityDataT %>% 
