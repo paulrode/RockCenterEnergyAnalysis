@@ -209,14 +209,17 @@ colnames(UtilityData1) <- c("Building", "2019 kwh", "2020 kwh", "2021 kwh", "201
 
 UtilityData1 %>% select("Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 kBTUs", "2020 kBTUs", "2021 kBTUs") -> UtilityData1
 
+###################################### ADD 2030 CARBON HERE ##########################
+
+
 UtilityData1 %>% 
   gather(key = "Item", value = "Value", -"Building") -> UtilityData1
   cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) %>% 
   select(-"Item") -> UtilityData1 
   colnames(UtilityData1)  <-  c("Building", "Value", "Year", "Unit") 
   UtilityData1 %>% 
-    mutate("Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF24, Value * SteamCF24)) %>% 
-    select(Building, Year, Unit, `Carbon/SF`) %>% 
+    mutate("24Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF24, Value * SteamCF24)) %>% 
+    select(Building, Year, Unit, `24Carbon/SF`) %>% 
     mutate("Carbon" = "tCO2e") -> UtilityData1
   
   UtilityData %>%   
@@ -270,7 +273,7 @@ UtilityDataT2$Penalty <- format(UtilityDataT2$Penalty,format = "f",  decimal.mar
 # Table 
 UtilityDataT2 %>% 
   adorn_totals(where = "row", fill = "-", na.rm = TRUE, name = "Total") %>% 
-kable( format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "Net Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
+kable( format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "2024 Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
 kable_styling(bootstrap_options = "striped",full_width = F) %>% 
  column_spec(4, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
 
