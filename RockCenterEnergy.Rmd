@@ -209,18 +209,21 @@ colnames(UtilityData1) <- c("Building", "2019 kwh", "2020 kwh", "2021 kwh", "201
 
 UtilityData1 %>% select("Building", "2019 kwh", "2020 kwh", "2021 kwh", "2019 kBTUs", "2020 kBTUs", "2021 kBTUs") -> UtilityData1
 
-###################################### ADD 2030 CARBON HERE ##########################
-
-
 UtilityData1 %>% 
   gather(key = "Item", value = "Value", -"Building") -> UtilityData1
   cbind(UtilityData1, str_split_fixed(UtilityData1$Item, " ", n=2)) %>% 
   select(-"Item") -> UtilityData1 
   colnames(UtilityData1)  <-  c("Building", "Value", "Year", "Unit") 
   UtilityData1 %>% 
-    mutate("24Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF24, Value * SteamCF24)) %>% 
-    select(Building, Year, Unit, `24Carbon/SF`) %>% 
+    mutate("24Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF24, Value * SteamCF24), "30Carbon/SF" = ifelse(Unit == "kwh", Value * ElecCF30, Value * SteamCF30)) %>%
+    select(Building, Year, Unit, `24Carbon/SF`, `30Carbon/SF` ) %>% 
     mutate("Carbon" = "tCO2e") -> UtilityData1
+  
+  CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00758, IntensityLimit30 = 0.002690852)
+CarbonLimits$Year <- as.character(CarbonLimits$Year)
+
+
+
   
   UtilityData %>%   
 ggplot(aes(x = Building, y = `Gross Floor Area`, fill = Building)) +
@@ -231,7 +234,7 @@ ggplot(aes(x = Building, y = `Gross Floor Area`, fill = Building)) +
 
 
 UtilityData1 %>%   
-ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
+ggplot(aes(x = Year, y = `24Carbon/SF`, fill = Building, group = Building)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs( title = "Carbon Intensity by Building",
         subtitle = "Carbon Intensity with Local Law 97 Limtis") +
@@ -242,8 +245,6 @@ ggplot(aes(x = Year, y = `Carbon/SF`, fill = Building, group = Building)) +
   geom_text(aes(x = 2, y = IntensityLimit30, label = "2030 Carbon Limit"), hjust = 0, vjust = -.2 , color = "blue", alpha = 0.01) 
   
 
-CarbonLimits <- data.frame(Year = 2019:2021, IntensityLimit24 = 0.00758, IntensityLimit30 = 0.002690852)
-CarbonLimits$Year <- as.character(CarbonLimits$Year)
 ```
 
 
@@ -256,16 +257,26 @@ CarbonLimits$Year <- as.character(CarbonLimits$Year)
 UtilityData1 %>% 
   left_join(BuildingGSF) %>%   # ######### -------> need to make a BuildingGSF object
   left_join(CarbonLimits) %>%  # ######### -------> need to make a CarbonLimits object
-  mutate('tCO2e' = IntensityLimit24 - `Carbon/SF`) -> UtilityDataT
+  mutate('24tCO2e' = IntensityLimit24 - `24Carbon/SF`, '30tCO2e' = IntensityLimit30 - `30Carbon/SF`) -> UtilityDataT
 
 UtilityDataT %>% 
-  mutate("Penality" = ifelse(tCO2e > 0, 0, (268 * tCO2e * UtilityDataT$`Gross Floor Area`))) -> UtilityDataT
+  mutate("24Penality" = ifelse('24tCO2e' > 0, 0, (268 * '24tCO2e' * UtilityDataT$`Gross Floor Area`)), "30Penality" = ifelse('30tCO2e' > 0, 0, (268 * '30tCO2e' * UtilityDataT$`Gross Floor Area`))) -> UtilityDataT
+
+
+
+
 
 UtilityDataT %>% 
   filter(Year == 2019) %>% 
-  select(-Year, -Unit, -Carbon, -IntensityLimit30, -IntensityLimit24) %>% 
+  select(-Year, -Unit, -Carbon, -IntensityLimit30, -IntensityLimit24) %>%  
   group_by(Building) %>% 
-  summarise( "CarbonPSF" = sum(`Carbon/SF`), "tCO2e" = sum(`tCO2e`), "Penalty" = sum(Penality))  -> UtilityDataT2
+  summarise( "24CarbonPSF" = sum(`24Carbon/SF`), "24tCO2e" = sum(`24tCO2e`), "24Penalty" = sum(`24Penality`), "30CarbonPSF" = sum(`30Carbon/SF`), "30tCO2e" = sum(`30tCO2e`), "30Penalty" = sum(`30Penality`))  -> UtilityDataT2
+
+
+                                  #    UP TO THIS POINT 
+#############################################################################################
+#############################################################################################
+
 
 UtilityDataT2$Penalty <- format(UtilityDataT2$Penalty,format = "f",  decimal.mark = ",",digits = 0, big.mark = ",", small.mark = ",")
 
@@ -273,7 +284,7 @@ UtilityDataT2$Penalty <- format(UtilityDataT2$Penalty,format = "f",  decimal.mar
 # Table 
 UtilityDataT2 %>% 
   adorn_totals(where = "row", fill = "-", na.rm = TRUE, name = "Total") %>% 
-kable( format = "html", col.names = c("Building", "Carbon/GSF", "Total Carbon", "2024 Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
+kable( format = "html", col.names = c("Building", "24Carbon/GSF", "Total Carbon", "2024 Penanity"), align = "lllc", caption = "<center><strong><strong>Penality Tabulation</strong></strong></center>", digits = getOption("digits"), booktabs = T ) %>% 
 kable_styling(bootstrap_options = "striped",full_width = F) %>% 
  column_spec(4, bold = TRUE, border_right = TRUE, color = "black", background = "lightgrey")
 
